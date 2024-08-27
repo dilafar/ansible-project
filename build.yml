@@ -1,0 +1,39 @@
+---
+- name: build artifact and copy artifact and sql backup
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: install packages
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - git
+        - maven
+        - openjdk-8-jdk
+
+    - name: clone github repository
+      git:
+        repo: 'https://github.com/dilafar/sample-app-devops-practice.git'
+        dest: ./app-repo
+        version: master
+      register: git_status
+
+    - name: build jar with mvn
+      command: mvn clean install
+      args:
+        chdir: app-repo
+      when: git_status.changed
+      register: mvn_status
+
+    - name: copy jar file
+      copy:
+        src: app-repo/target/*.war
+        dest: files/ROOT.war
+
+    - name: copy sql backup
+      copy:
+        src: app-repo/src/main/resources/db_backup.sql
+        dest: files/db_backup.sql

@@ -1,0 +1,67 @@
+---
+- name: install and setup mysql db
+  hosts: mysql_server
+  become: yes
+  tasks:
+    - name: include vars
+      include_vars: vars/db
+
+    - name: update apt repo and cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+
+    - name: install mysql packages
+      package:
+        name: "{{item}}"
+        state:  present
+      loop:
+        - mysql-client
+        - mysql-server
+        - python3-mysqldb
+        - python-mysqldb
+        - libmysqlclient-dev
+        - python3-mysqlclient
+      ignore_errors: yes
+      tags:
+        - package
+
+    - name: start mysql service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+      tags:
+        - svc
+
+    - name: add username and password
+      mysql_user:
+        name: "{{dbuser}}"
+        password: "{{dbpass}}"
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: create accounts db
+      mysql_db:
+        name: "{{dbname}}"
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: enable remote login to mysql svc
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
+      notify:
+        - restart mysql
+      tags:
+        - conf
+  handlers:
+      - name: restart mysql
+        service:
+          name: mysql
+          state: restarted
+
+

@@ -1,0 +1,24 @@
+---
+- name: build artifact
+  import_playbook: build.yml
+
+- name: set hosts in etc/hosts
+  import_playbook: host_ip_map.yml
+
+- name: setup mysql
+  import_playbook: mysql.yml
+
+- name: import backup data
+  import_playbook: mysql_import.yml
+
+- name: setup memcached
+  import_playbook: memcached.yml
+
+- name: setup rabbitmq
+  import_playbook: rabbitmq.yml
+
+- name: setup tomcat8
+  import_playbook: tomcat_server.yml
+
+- name: setup nginx
+  import_playbook: nginx.yml

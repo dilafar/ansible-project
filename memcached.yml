@@ -1,0 +1,37 @@
+---
+- name: install memcached and start & enable
+  hosts: memcached_server
+  become: yes
+  tasks:
+    - name: install memcached
+      apt:
+        name: memcached
+        state: present
+        update_cache: yes
+        cache_valid_time: 86400
+      tags:
+        - package
+
+    - name: start and enable memcached
+      service:
+        name: memcached
+        state: started
+        enabled: true
+      tags:
+        - svc
+
+    - name: enable remote login to memcached
+      lineinfile:
+        path: /etc/sysconfig/memcached
+        regexp: '^-l'
+        line: '-l 0.0.0.0'
+      notify:
+        - restart memcached
+      tags:
+        - conf
+
+  handlers:
+    - name: restart memcached
+      service:
+        name: memcached
+        state: restarted

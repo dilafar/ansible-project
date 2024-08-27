@@ -1,0 +1,16 @@
+---
+- name: set host ip map to all instance
+  hosts: all
+  tasks:
+    - name: import host vars
+      include_vars: vars/hosts
+
+    - name: add all hosts for etc/hosts file
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          {{web01_ip}} web01
+          {{app01_ip}} app01
+          {{rmq01_ip}} rmq01
+          {{mc01_ip}} mc01
+          {{db01_ip}} db01

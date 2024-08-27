@@ -1,0 +1,41 @@
+---
+- name: install nginx and configure
+  hosts: web_server
+  become: yes
+  tasks:
+    - name: install nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+        cache_valid_time: 84600
+
+    - name: start and enable nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: disable nginx default website
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: deploy web config file
+      template:
+        src: templates/nginx.j2
+        dest: /etc/nginx/sites-available/app
+
+    - name: create a link between sites files
+      file:
+        src: /etc/nginx/sites-available/app
+        dest: /etc/nginx/sites-enabled/app
+        state: link
+      notify:
+        - restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted

@@ -1,0 +1,31 @@
+web01 ansible_host=<nginx-host>
+app01 ansible_host=<tomcat-host>
+rmq01 ansible_host=<rabbitmq-host>
+mc01 ansible_host=<memcached-host>
+db01 ansible_host=<mysql-host>
+
+[web_server]
+web01
+
+[app_server]
+app01
+
+[amq_server]
+rmq01
+
+[memcached_server]
+mc01
+
+[mysql_server]
+db01
+
+[app_stack:children]
+web01
+app01
+rmq01
+mc01
+db01
+
+[app_stack:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file= app.pem

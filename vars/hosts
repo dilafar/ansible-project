@@ -1,0 +1,5 @@
+web01_ip: <ip-nginx-server>
+app01_ip: <ip-tomcat-server>
+rmq01_ip: <rabbitmq-server>
+mc01_ip: <ip-memcached>
+db01_ip: <ip-mysql>
